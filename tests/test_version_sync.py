@@ -21,7 +21,6 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.abspath(os.path.join(_HERE, ".."))
 _SKILL = os.path.join(_ROOT, "skills", "humanize-korean", "SKILL.md")
 _CLAUDE_PLUGIN = os.path.join(_ROOT, ".claude-plugin", "plugin.json")
-_COPILOT_PLUGIN = os.path.join(_ROOT, "plugin.json")
 _MARKETPLACE = os.path.join(_ROOT, ".claude-plugin", "marketplace.json")
 
 # frontmatter의 version 한 줄. PyYAML 의존을 만들지 않기 위해 직접 뽑는다
@@ -56,15 +55,6 @@ class ManifestVersionSyncTests(unittest.TestCase):
             f"— RELEASING.md §1 표대로 함께 갱신할 것",
         )
 
-    def test_copilot_plugin_json_matches_skill(self) -> None:
-        actual = json.loads(_read(_COPILOT_PLUGIN))["version"]
-        self.assertEqual(
-            actual,
-            self.expected,
-            f"root plugin.json version={actual} != SKILL.md {self.expected} "
-            f"— RELEASING.md §1 표대로 함께 갱신할 것",
-        )
-
     def test_marketplace_metadata_matches_skill(self) -> None:
         actual = json.loads(_read(_MARKETPLACE))["metadata"]["version"]
         self.assertEqual(
@@ -94,11 +84,9 @@ class ManifestDescriptionTests(unittest.TestCase):
 
     def _descriptions(self) -> list[tuple[str, str]]:
         claude_plugin = json.loads(_read(_CLAUDE_PLUGIN))
-        copilot_plugin = json.loads(_read(_COPILOT_PLUGIN))
         market = json.loads(_read(_MARKETPLACE))
         out = [
             (".claude-plugin/plugin.json", claude_plugin["description"]),
-            ("plugin.json", copilot_plugin["description"]),
         ]
         out.append(("marketplace.json metadata", market["metadata"]["description"]))
         out += [(f"marketplace.json {e['name']}", e["description"]) for e in market["plugins"]]

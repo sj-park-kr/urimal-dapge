@@ -7,10 +7,6 @@ description: AI(ChatGPT·Claude·Gemini 등)가 쓴 한글 텍스트를 "사람�
 # 우리말답게 (urimal-dapge) v0.1 — humanize-korean 2.3.2 기반 AI 한글 티 제거 오케스트레이터
 
 > **urimal-dapge v0.1.0** — humanize-korean 2.3.2 파생판. Phase 2.6 구조 점검(전 경로) + A-25 사물 주어 · A-26 주어 전환 뒤 생략 · C-15 메모체 기호 연쇄 + Windows Python 탐지.
-> **v2.3.2** — 플러그인 스킬을 관례 위치(루트 `skills/`)로 이동. 마켓플레이스 설치에서 shim·진단이 조용히 누락되던 경로 문제 해소.
-> **v2.3.1** — 경로 해석·런타임 경계·계약 정합 수정 회차(외부 제보 반영). 기능 변경 없음.
-> **v2.3.0** — 구조 수렴 게이트(`verify_gates.py` 4축: 목표달성·대구 전멸·수치·golden) + 진단 슬림 인덱스(`diagnosis-rules.md`, taxonomy 83%↓). (v2.2: route_hint 3경로 + 단일 콜 우선)
-> 버전 히스토리·실측 근거·테스트 시나리오: [`${CLAUDE_SKILL_DIR}/references/design-notes.md`](references/design-notes.md)
 
 ## Phase 0: 컨텍스트 확인 및 경로 결정
 
@@ -75,9 +71,7 @@ SKILL_ROOT="$(d="$(cd -P "${CLAUDE_SKILL_DIR}" && pwd)"; \
   [ "$d" = / ] && s="$(dirname "$(cd -P "${CLAUDE_SKILL_DIR}" && pwd)")/humanize-korean" && [ -f "$s/scripts/prepare_monolith_input.py" ] && d="$s"; echo "$d")"
 ```
 
-`.claude-plugin/` 디렉터리, 또는 `scripts/prepare_monolith_input.py` 를 품은 디렉터리를 만날 때까지 거슬러 올라간다. 뒤 조건은 `install.sh --copy` 설치용이다 — 복사 설치는 스킬 디렉터리만 떼어 오므로 조상에 마커가 없고, 대신 런타임 스크립트를 스킬 디렉터리 안 `scripts/` 에 함께 복사한다(#144). 둘째 줄은 `/humanize`·`/humanize-scan`·`/humanize-redo` 로 들어온 복사 설치용 폴백이다 — 이 래퍼 스킬에는 `scripts/` 가 없으므로, `/` 까지 올라가도 못 찾으면 형제 `humanize-korean/` 을 본다. **고정된 횟수로 올라가지 않는 이유**는 스킬 위치가 배포 방식마다 다를 수 있어서다 — 고정 깊이는 레이아웃이 바뀌면 조용히 엉뚱한 곳을 가리킨다.
-
-**`cd -P` 가 핵심이다.** 심링크 설치(`install.sh` 기본)에서는 스킬 디렉터리가 저장소를 가리키는 심링크라, 그냥 `cd` 하면 셸이 논리 경로를 유지해 엉뚱한 곳(홈 디렉터리)으로 올라간다. `-P` 로 물리 경로를 먼저 푼 뒤 올라가야 심링크·플러그인 양쪽에서 같은 답이 나온다. 이후 모든 스크립트 호출에 `${SKILL_ROOT}/scripts/...` 를 쓴다.
+`.claude-plugin/` 디렉터리(또는 `scripts/prepare_monolith_input.py`)를 만날 때까지 거슬러 올라간다. `cd -P`로 물리 경로를 먼저 풀어야 심링크 설치에서도 같은 답이 나온다. 이후 모든 스크립트 호출에 `${SKILL_ROOT}/scripts/...` 를 쓴다.
 
 **확인**: `ls "${SKILL_ROOT}/scripts/prepare_monolith_input.py"` 가 실패하면 경로 유도가 틀린 것이다. 이 경우 스크립트를 찾을 때까지 임의로 추측하지 말고, 정량 shim·게이트 없이 진행한다고 **사용자에게 알린 뒤** 계속한다. 조용히 건너뛰면 route_hint 와 철칙 #4 게이트가 사라진 것을 아무도 모른다.
 
@@ -286,7 +280,7 @@ A-25·A-26·C-15는 `quick: false`라서 light 경로의 monolith에는 실리�
 |---|---|
 | "특정 카테고리만 다시" | heavy 경로. `02_diagnosis.md`의 지배 패턴을 해당 카테고리로 한정해 P1부터 재실행 |
 | "이 문단만" | heavy 경로, 해당 문단만 입력으로 새 run_id 생성 |
-| "2차 윤문"·"`/humanize-redo`" | 기존 run_id의 `final.md`를 새 입력으로 heavy P1부터 재실행 |
+| "2차 윤문" | 기존 run_id의 `final.md`를 새 입력으로 heavy P1부터 재실행 |
 | "윤문 강도 조정" | heavy 경로, 진단의 지배 패턴 개수(3~6)를 늘리거나 줄여 재실행 |
 | "장르 바꿔서" | `genre` 변경 후 Phase 1부터 재실행 (경로는 route_hint 재판정) |
 
@@ -321,7 +315,7 @@ A-25·A-26·C-15는 `quick: false`라서 light 경로의 monolith에는 실리�
                           ──→ 고친 곳이 있으면 [verify_gates.py] 재실행
 ```
 
-## 설계 노트 (요약 — 전문은 design-notes.md)
+## 설계 노트
 
 **단일 콜 우선** — 근거: 1만자 실측에서 청킹 7콜 610K 토큰 vs 단일 콜 134K, 품질 동등(폭발 원인 = 청크마다 룰북·진단 재로드). 청킹 확대는 이 사고의 재현이다.
 **route_hint 분기** — 근거: 잘 쓴 글에도 최중량 파이프라인을 돌리던 낭비를 차단.
@@ -337,21 +331,11 @@ A-25·A-26·C-15는 `quick: false`라서 light 경로의 monolith에는 실리�
 
 **모델:** 런타임 3종 모두 `model: opus`. (모델 선택은 본 스킬의 관할이 아니다 — 오픈소스 사용자가 정한다. v2.2의 절감은 전적으로 콜 수·경로에서 온다.)
 
-**에이전트 정의 위치:** 저장소 루트 `agents/`에 9종 정의(플러그인 컨벤션). Claude Code 탐색 경로:
-1. 플러그인 설치 시 — `humanize-korean` 플러그인이 `agents/`를 번들로 제공(전역).
-2. 스크립트 설치 시 — `install.sh`가 `agents/*.md`를 `~/.claude/agents/`에 심링크(전역).
+**에이전트 정의 위치:** 저장소 루트 `agents/`에 3종(플러그인 설치 시 번들로 제공).
 
-9종의 내역은 런타임 3 + 유지보수 1 + 개발용 1회성 5이며, **본 스킬 런타임이 호출하는 것은 3종뿐**이다.
-
-**런타임 3종 (스킬 실행 중 호출)**
 - `humanize-monolith` — 전 경로 공용 윤문 콜
 - `humanize-diagnostician` — standard·heavy 진단
 - `humanize-finalizer` — heavy·승급 시 마무리
-
-**유지보수 1종 (별도 명령으로만 트리거)**
-- `korean-ai-tell-taxonomist` — 분류 체계(SSOT) 유지·확장. 본 스킬 실행 중에는 호출되지 않음
-
-(개발용 1회성 5종·v2.1 은퇴 5종의 계보와 테스트 시나리오는 `${CLAUDE_SKILL_DIR}/references/design-notes.md` 참조.)
 
 ## 주의 사항
 
@@ -370,8 +354,6 @@ A-25·A-26·C-15는 `quick: false`라서 light 경로의 monolith에는 실리�
 - 슬림 룰북 (monolith 전용): [`${CLAUDE_SKILL_DIR}/references/quick-rules.md`](references/quick-rules.md) — S1·S2 핵심 패턴 + 자체검증 체크리스트
 - 진단 인덱스 (diagnostician 전용): [`${CLAUDE_SKILL_DIR}/references/diagnosis-rules.md`](references/diagnosis-rules.md) — 전 패턴 전수 ID·정의·시그니처. `build_diagnosis_rules.py`가 taxonomy에서 자동 생성(직접 편집 금지)
 - 정량 점수 shim: `${SKILL_ROOT}/scripts/prepare_monolith_input.py` — `${CLAUDE_SKILL_DIR}/references/metrics_v2.py`(실패 시 `metrics.py` fallback) + `${CLAUDE_SKILL_DIR}/references/baseline.json` 기반 사전 점수 + `route_hint` 산출
-- 텍스트 위생: `${SKILL_ROOT}/scripts/sanitize_text.py` — shim이 자동 호출(끄려면 `--no-sanitize`). 제로폭·bidi·특수공백 제거 + 한글 NFD→NFC 정규화를 `01_input.txt`에 반영해 이후 변경률 게이트·diff·글자수가 같은 기준을 쓰게 한다. 결정적 처리, LLM 0콜. 변경이 있으면 `00_sanitize.json` 기록. **AI 워터마크 제거 기능이 아니다** (CLAUDE.md 「AI 워터마킹에 대한 입장」 참조)
-- 분류 체계 본진 (SSOT — 유지보수·taxonomist 전용): [`${CLAUDE_SKILL_DIR}/references/ai-tell-taxonomy.md`](references/ai-tell-taxonomy.md) — 10대분류 × 85 패턴(활성 84 + A-17 hold) 전수. 런타임 콜은 이 파일을 직접 읽지 않는다
-- 윤문 처방 (진단 전용): [`${CLAUDE_SKILL_DIR}/references/rewriting-playbook.md`](references/rewriting-playbook.md) — 카테고리별 치환 레시피·장르별 허용 표
+- 텍스트 위생: `${SKILL_ROOT}/scripts/sanitize_text.py` — shim이 자동 호출(끄려면 `--no-sanitize`). 제로폭·bidi·특수공백 제거 + 한글 NFD→NFC 정규화를 `01_input.txt`에 반영해 이후 변경률 게이트·diff·글자수가 같은 기준을 쓰게 한다. 결정적 처리, LLM 0콜. 변경이 있으면 `00_sanitize.json` 기록. **AI 워터마크 제거 기능이 아니다**
+- 분류 체계 본진 (SSOT — 고친 뒤 `scripts/build_quick_rules.py`·`build_diagnosis_rules.py`로 룰북 재생성): [`${CLAUDE_SKILL_DIR}/references/ai-tell-taxonomy.md`](references/ai-tell-taxonomy.md) — 10대분류 × 85 패턴(활성 84 + A-17 hold) 전수. 런타임 콜은 이 파일을 직접 읽지 않는다
 - 학술 인용 외부 SSOT: [`${CLAUDE_SKILL_DIR}/references/scholarship.md`](references/scholarship.md) — v2.0 학자 인용·caveat verbatim 보존
-- 웹 서비스 스펙 (옵션): [`${CLAUDE_SKILL_DIR}/references/web-service-spec.md`](references/web-service-spec.md) — 웹 확장 시 로드

@@ -31,7 +31,7 @@ RUNTIME_AGENTS = (
     "humanize-diagnostician",
     "humanize-finalizer",
 )
-MAINTENANCE_AGENTS = ("korean-ai-tell-taxonomist",)
+MAINTENANCE_AGENTS: tuple[str, ...] = ()
 
 
 def _read(path: str) -> str:
