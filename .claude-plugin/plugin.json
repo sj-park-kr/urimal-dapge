@@ -1,0 +1,22 @@
+{
+  "name": "urimal-dapge",
+  "version": "0.1.0",
+  "description": "AI가 쓴 한국어를 우리말답게 윤문 — 번역투·리듬 티(85패턴, humanize-korean 2.3.2 기반)에 더해 사물 주어·주어 전환 생략 같은 \"누가 하는가\" 구조까지 점검.",
+  "author": {
+    "name": "sj-park-kr"
+  },
+  "homepage": "https://github.com/sj-park-kr/urimal-dapge",
+  "repository": "https://github.com/sj-park-kr/urimal-dapge",
+  "license": "MIT",
+  "keywords": [
+    "korean",
+    "humanize",
+    "ai-detector",
+    "translationese",
+    "윤문",
+    "번역투",
+    "우리말",
+    "주어",
+    "행위자"
+  ]
+}

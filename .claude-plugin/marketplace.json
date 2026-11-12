@@ -1,0 +1,26 @@
+{
+  "name": "urimal-dapge",
+  "owner": {
+    "name": "sj-park-kr"
+  },
+  "metadata": {
+    "description": "AI가 쓴 한국어를 우리말답게 윤문하는 스킬 마켓플레이스 (humanize-korean 파생판)",
+    "version": "0.1.0",
+    "pluginRoot": "."
+  },
+  "plugins": [
+    {
+      "name": "urimal-dapge",
+      "source": "./",
+      "description": "AI가 쓴 한국어를 우리말답게 윤문 — 번역투·리듬 티(85패턴, humanize-korean 2.3.2 기반)에 더해 사물 주어·주어 전환 생략 같은 \"누가 하는가\" 구조까지 점검.",
+      "version": "0.1.0",
+      "keywords": [
+        "korean",
+        "humanize",
+        "ai-detector",
+        "윤문",
+        "번역투"
+      ]
+    }
+  ]
+}
