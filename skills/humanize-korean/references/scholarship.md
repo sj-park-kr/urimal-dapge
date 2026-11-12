@@ -126,6 +126,15 @@
 
 - **"Do Large Language Models Have an English Accent?"** (arXiv 2410.15956). 영어 중심 LLM의 비영어 출력에는 어휘와 문법 모두 영어식 패턴이 남는다(실험 언어: 프랑스어·중국어).
 - **"Lost in Literalism: How Supervised Training Shapes Translationese in LLMs"** (ACL 2025). LLM 번역투는 지도 학습 데이터의 직역에서 온다. 프롬프트로 자연스러움을 요구해도 번역투가 안정적으로 줄지 않았고 일부는 악화됐다. 그래서 사후 점검이 필요하다.
+- **"KatFishNet: Detecting LLM-Generated Korean Text"** (ACL 2025, arXiv 2503.00032). 한국어에서 사람 글과 LLM 글을 띄어쓰기, 품사 조합, 문장부호로 가렸다. 그중 쉼표 사용이 가장 강한 신호였다. C-11(연결어미 뒤 쉼표)과 같은 관찰이다.
+
+## 관형절 처리 부담 (urimal 0.1)
+
+> 본진 매핑: A-18(명사 앞 3어절 이상 관형구). 규칙은 원본 그대로이고 근거만 더한다.
+
+- **(1995)**. 한국어 관계절 문장의 이해 과정과 구조. [koreascience JAKO199511920276762](https://koreascience.or.kr/article/JAKO199511920276762.page). 관형절이 든 문장은 읽기 시간이 주로 피수식 명사 자리에서 늘었다. 수식어가 길수록 명사를 만날 때까지 기억에 담아 둘 짐이 커진다.
+- **한국어 수식절 처리 난이도** (시선추적, [koreascience CFKO200908355727731](https://www.koreascience.kr/article/CFKO200908355727731.pdf)). 난이도는 도치 부사절 < 내포 부사절 < 내포 관형절 < 도치 관형절 순이었다. 부사절보다 관형절이 어렵다.
+- 처방 함의: 3어절 넘게 꾸미는 관형구는 문장을 나누거나 "~ 중 ~인 것"으로 푼다(A-18 처방과 같다).
 
 ## 국제 번역학 이론적 토대
 
